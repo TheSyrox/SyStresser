@@ -4,6 +4,16 @@ import requests
 
 def send_packets(host, port, packet_count, proxy_list):
     for proxy in proxy_list:
+        # Proxy'nin canlı olup olmadığını kontrol et
+        try:
+            response = requests.get("http://" + proxy, timeout=5)
+            if response.status_code != 200:
+                print(proxy + " KAPALI")
+                continue
+        except:
+            print(proxy + " KAPALI")
+            continue
+
         # Socket oluştur
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
