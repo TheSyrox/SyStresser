@@ -1,3 +1,3 @@
 # SyStresser
-DDOS ATTACK SCRİPT USAGE: python SYDDOS.py;
-UPDATE:ARTIK PROXY İLE ÇALIŞIYOR PROXYİ OTOMATİK OLARAK ÇEKİYOR VE SİZİN EKLEMENİZ GEREKMİYOR (:.
+DDOS ATTACK SCRİPT USAGE: python SYDDOS.py --url url --port 80 -- time time --threads threads
+
